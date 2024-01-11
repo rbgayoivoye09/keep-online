@@ -8,53 +8,51 @@ import (
 	"os"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
-	// P()
-	if CheckInternetConnection() {
-		fmt.Println("已成功连接到互联网!")
-
-		// 调用函数读取配置文件
-		config, err := readConfigFile()
-		if err != nil {
-			panic(err)
-		}
-
-		// 打印配置项
-		fmt.Printf("User Name: %s\n", config.UserName)
-		fmt.Printf("User Password: %s\n", config.UserPassword)
-		fmt.Printf("User LoginUrl: %s\n", config.UserLoginUrl)
-		fmt.Printf("User Redirul: %s\n", config.UserRedirul)
-
-		// login()
-		err = authenticateVPN(config.UserLoginUrl, config.UserName, config.UserPassword, config.UserRedirul)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-	} else {
-		fmt.Println("无法连接到互联网.")
-
-		// 调用函数读取配置文件
-		config, err := readConfigFile()
-		if err != nil {
-			panic(err)
-		}
-
-		// 打印配置项
-		fmt.Printf("User Name: %s\n", config.UserName)
-		fmt.Printf("User Password: %s\n", config.UserPassword)
-		fmt.Printf("User LoginUrl: %s\n", config.UserLoginUrl)
-		fmt.Printf("User Redirul: %s\n", config.UserRedirul)
-
-		// login()
-		err = authenticateVPN(config.UserLoginUrl, config.UserName, config.UserPassword, config.UserRedirul)
-		if err != nil {
-			fmt.Println(err)
-		}
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+}
+
+func runCLI(c MyConfig) {
+	var myconfig MyConfig
+	logger.Sugar().Infof("c: %v\n", c)
+
+	if c.UserName == "" || c.UserLoginUrl == "" || c.UserPassword == "" || c.UserRedirul == "" {
+		logger.Sugar().Warn("命令行用户名,密码,登录地址,重定向地址 为空")
+		logger.Sugar().Warn("使用配置文件")
+		// 调用函数读取配置文件
+		myconfig, err = readConfigFile()
+		if err != nil {
+			logger.Sugar().Error(err)
+		} else {
+			logger.Sugar().Info("读取配置文件成功")
+		}
+	} else {
+		logger.Sugar().Info("使用命令行输入的配置")
+		myconfig = c
+	}
+
+	// 打印配置项
+	logger.Sugar().Info("User Name:", myconfig.UserName)
+	logger.Sugar().Info("User Password:", myconfig.UserPassword)
+	logger.Sugar().Info("User LoginUrl:", myconfig.UserLoginUrl)
+	logger.Sugar().Info("User Redirul:", myconfig.UserRedirul)
+
+	// login()
+	err = authenticateVPN(myconfig.UserLoginUrl, myconfig.UserName, myconfig.UserPassword, myconfig.UserRedirul)
+	if err != nil {
+		logger.Sugar().Error(err)
+	}
+
 }
 
 // CheckInternetConnection 检测当前环境是否可以接入互联网
@@ -72,14 +70,14 @@ func CheckInternetConnection() bool {
 	return true
 }
 
-type Config struct {
+type MyConfig struct {
 	UserName     string `mapstructure:"user_name"`
 	UserPassword string `mapstructure:"user_password"`
 	UserRedirul  string `mapstructure:"user_redirurl"`
 	UserLoginUrl string `mapstructure:"user_login_url"`
 }
 
-func readConfigFile() (Config, error) {
+func readConfigFile() (MyConfig, error) {
 	filePath := "user.yml"
 
 	// 设置配置文件名和路径
@@ -87,13 +85,17 @@ func readConfigFile() (Config, error) {
 
 	// 读取配置文件
 	if err := viper.ReadInConfig(); err != nil {
-		return Config{}, fmt.Errorf("Fatal error config file: %s", err)
+		return MyConfig{}, fmt.Errorf("Fatal error config file: %s", err)
 	}
 
 	// 解析配置文件到结构体
-	var config Config
+	var config MyConfig
 	if err := viper.Unmarshal(&config); err != nil {
-		return Config{}, fmt.Errorf("Unable to decode into struct: %s", err)
+		return MyConfig{}, fmt.Errorf("Unable to decode into struct: %s", err)
+	}
+
+	if config.UserName == "" || config.UserPassword == "" || config.UserRedirul == "" || config.UserLoginUrl == "" {
+		return MyConfig{}, fmt.Errorf("配置文件中缺少必要的配置项")
 	}
 
 	return config, nil
@@ -125,7 +127,7 @@ func authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 
 	// 检查认证是否成功
 	if response.StatusCode == http.StatusOK {
-		fmt.Println("认证成功！")
+		logger.Sugar().Info("认证成功！")
 	} else {
 		return fmt.Errorf("认证失败，状态码: %d", response.StatusCode)
 	}
@@ -133,55 +135,65 @@ func authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 	return nil
 }
 
-func P() {
-	// 设置Ping的目标地址
-	target := "www.baidu.com"
+var logger *zap.Logger
+var err error
 
-	// 设置超时时间
-	timeout := 2 * time.Second
+var rootCmd = &cobra.Command{
+	Use:   "mycli",
+	Short: "A simple CLI tool",
+	Long:  `A simple CLI tool built with Cobra`,
+	Run: func(cmd *cobra.Command, args []string) {
+		user_name, _ := cmd.Flags().GetString("user_name")
+		user_password, _ := cmd.Flags().GetString("user_password")
+		user_redirurl, _ := cmd.Flags().GetString("user_redirurl")
+		user_login_url, _ := cmd.Flags().GetString("user_login_url")
 
-	// 执行Ping操作
-	err := ping(target, timeout)
-	if err != nil {
-		fmt.Println("Ping失败:", err)
-		os.Exit(1)
-	}
+		runCLI(MyConfig{UserName: user_name, UserPassword: user_password, UserRedirul: user_redirurl, UserLoginUrl: user_login_url})
 
-	fmt.Println("Ping成功，已连接到互联网！")
+	},
 }
 
-func ping(target string, timeout time.Duration) error {
-	// 创建一个icmp类型的网络连接
-	conn, err := net.DialTimeout("ip4:icmp", target, timeout)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+func init() {
+	rootCmd.Flags().String("user_name", "", "User name")
+	rootCmd.Flags().String("user_password", "", "User password")
+	rootCmd.Flags().String("user_redirurl", "", "Redir URL")
+	rootCmd.Flags().String("user_login_url", "", "Login URL")
 
-	// 获取本机IP地址
-	localAddr := conn.LocalAddr().(*net.IPAddr)
+	// 配置日志文件的路径和其他相关参数
+	logDirectory := "./logs/"
+	logFile := logDirectory + "app.log"
+	maxSize := 10 // MB
+	maxBackups := 5
+	maxAge := 7 // days
 
-	// 构建ICMP消息
-	icmpMsg := []byte{8, 0, 0, 0, 0, 13, 0, 37, byte(os.Getpid() & 0xff), byte(os.Getpid() >> 8)}
-
-	// 发送Ping消息
-	_, err = conn.Write(icmpMsg)
-	if err != nil {
-		return err
+	// 创建日志目录
+	if err := os.MkdirAll(logDirectory, os.ModePerm); err != nil {
+		panic("Failed to create log directory: " + err.Error())
 	}
 
-	// 设置读取超时时间
-	conn.SetReadDeadline(time.Now().Add(timeout))
-
-	// 接收Ping响应
-	receive := make([]byte, 28+len(icmpMsg))
-	_, err = conn.Read(receive)
-	if err != nil {
-		return err
+	// 创建一个 lumberjack.Logger，用于处理日志轮换
+	lumberjackLogger := &lumberjack.Logger{
+		Filename:   logFile,
+		MaxSize:    maxSize,
+		MaxBackups: maxBackups,
+		MaxAge:     maxAge,
 	}
+	// 创建 zap 的配置
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"stdout", logFile}
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	fmt.Printf("接收到的数据: %v\n", receive)
-	fmt.Printf("Ping成功，来自 %s 的回复。\n", localAddr.IP.String())
+	// 配置 zap logger
+	logger, err = config.Build(
+		zap.AddCaller(),
+		zap.AddStacktrace(zap.ErrorLevel),
+		zap.ErrorOutput(zapcore.AddSync(lumberjackLogger)),
+	)
+	if err != nil {
+		panic("Failed to initialize zap logger: " + err.Error())
+	}
+	defer logger.Sync()
 
-	return nil
+	logger.Info("This is a log message.")
+
 }

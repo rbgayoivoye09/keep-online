@@ -24,12 +24,12 @@ jobs:
       #       ${{ runner.os }}-go-
 
       - name: Build
-        if: startsWith(github.ref, 'refs/tags/')
+        # if: startsWith(github.ref, 'refs/tags/')
         run: go build -o ./bin/keep-online main.go
 
       - name: Upload Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        # if: startsWith(github.ref, 'refs/tags/')
         with:
           files: bin/*
           draft: true

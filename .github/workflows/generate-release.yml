@@ -1,0 +1,33 @@
+name: Generate Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.21.x'  # 指定您的Golang版本
+
+    - name: Build and Release
+      run: |
+        echo "Building and generating release file..."
+        go build -o keep-online main.go
+        # 在这里添加生成release文件的命令，例如创建二进制文件和压缩文件
+
+    - name: Commit and Push Release File
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Generate release file for tag ${{ github.ref }}"
+        git push

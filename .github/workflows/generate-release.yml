@@ -1,34 +1,35 @@
-name: Generate Release
-
-on:
-  push:
-    tags:
-      - '*'
-
+name: Release
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-      with:
-          fetch-depth: 0
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21.x'  # 指定您的Golang版本
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          check-latest: true
+          go-version: '1.21'
 
-    - name: Build and Release
-      run: |
-        echo "Building and generating release file..."
-        go build -o keep-online main.go
-        # 在这里添加生成release文件的命令，例如创建二进制文件和压缩文件
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
 
-    - name: Commit and Push Release File
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Generate release file for tag ${{ github.ref }}"
-        git push
+      # - name: Cache go module
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ~/go/pkg/mod
+      #       ~/.cache/go-build
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-
+
+      - name: Build
+        if: startsWith(github.ref, 'refs/tags/')
+        run: go build -o ./bin/keep-online main.go
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: bin/*
+          draft: true

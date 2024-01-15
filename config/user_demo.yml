@@ -1,0 +1,14 @@
+user:
+  name : "zhangsan"
+  password : "fBE347Uh"
+
+web:
+  redirurl : "https://www.baidu.com/"
+  login_url : "http://google.com/index.php?zone=cpzone"
+
+ssh:
+  user : "root"
+  password : "kP3uL9eI2nK3qI1f"
+  host: "10.1.69.93"
+  port : 22
+  filePath : "/home/eb5gc/zs/password.txt"

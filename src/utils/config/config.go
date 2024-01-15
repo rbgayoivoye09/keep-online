@@ -15,6 +15,10 @@ type User struct {
 	Name     string `mapstructure:"name"`
 	Password string `mapstructure:"password"`
 }
+type Mail struct {
+	Name     string `mapstructure:"name"`
+	Password string `mapstructure:"password"`
+}
 
 type Web struct {
 	RedirURL string `mapstructure:"redirurl"`
@@ -31,6 +35,8 @@ type SSH struct {
 
 type Config struct {
 	User `mapstructure:"user"`
+
+	Mail `mapstructure:"mail"`
 
 	Web `mapstructure:"web"`
 

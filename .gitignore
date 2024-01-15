@@ -21,6 +21,7 @@ vendor/
 go.work
 
 # Project Only
+password.txt
 user.yml
 logs/
 bin/

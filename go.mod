@@ -3,6 +3,8 @@ module github.com/rbgayoivoye09/keep-online
 go 1.21.5
 
 require (
+	github.com/emersion/go-imap v1.2.1
+	github.com/emersion/go-message v0.18.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.21.0
@@ -11,6 +13,8 @@ require (
 )
 
 require (
+	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
+	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

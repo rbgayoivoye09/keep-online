@@ -39,7 +39,7 @@ func AuthenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 
 // _authenticateVPN is an internal function that actually authenticates the user for VPN access.
 func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
-	Logger.Sugar().Infof("开始认证VPN... %s %s %s %s", loginUrl, authUser, authPass, redirectUrl)
+	Logger.Sugar().Infof("开始认证VPN... %s %s %s", loginUrl, authUser, redirectUrl)
 	// 发送GET请求获取网页
 	response, err := http.Get(loginUrl)
 	if err != nil {

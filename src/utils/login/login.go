@@ -5,29 +5,31 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"time"
 
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
-
-	"time"
 )
 
-// CheckInternetConnection 检测当前环境是否可以接入互联网
-func CheckInternetConnection() bool {
-	// 设置超时时间为2秒
-	timeout := time.Second * 2
-
-	// 尝试连接到一个已知的互联网地址（例如Google的公共DNS服务器）
-	conn, err := net.DialTimeout("tcp", "114.114.114.114:80", timeout)
+// checkInternetAccess 检测当前环境是否可以接入互联网
+func checkInternetAccess() bool {
+	urt := "www.baidu.com:80"
+	// urt := "www.google.com:80"
+	_, err := net.DialTimeout("tcp", urt, 5*time.Second)
 	if err != nil {
+		Logger.Sugar().Error("No internet access ", urt, err.Error())
 		return false
 	}
-	defer conn.Close()
-
+	Logger.Sugar().Info("Internet access available ", urt)
 	return true
 }
 
 func AuthenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
-	return _authenticateVPN(loginUrl, authUser, authPass, redirectUrl)
+	if !checkInternetAccess() {
+		Logger.Sugar().Warn("无网络访问，执行 VPN 认证")
+		return _authenticateVPN(loginUrl, authUser, authPass, redirectUrl)
+	}
+	Logger.Sugar().Info("接入网络，跳过 VPN 认证")
+	return nil
 }
 
 func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {

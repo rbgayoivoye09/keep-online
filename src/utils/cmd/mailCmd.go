@@ -18,12 +18,37 @@ import (
 	"github.com/emersion/go-message/mail"
 )
 
+func init() {
+	mailCmd.Flags().StringP("name", "n", "", "email address")
+	mailCmd.Flags().StringP("password", "p", "", "email password")
+}
+
 var mailCmd = &cobra.Command{
 	Use:   "mail",
 	Short: "Configure keep-online settings",
 	Run: func(cmd *cobra.Command, args []string) {
-		c := config.GetConfig()
-		Usage(c.Mail.Name, c.Mail.Password)
+
+		cmd_name, err := cmd.Flags().GetString("name")
+		if err != nil {
+			Logger.Sugar().Error(err)
+		} else {
+			Logger.Sugar().Info("email address: ", cmd_name)
+		}
+		cmd_passwd, err := cmd.Flags().GetString("password")
+		if err != nil {
+			Logger.Sugar().Error(err)
+		} else {
+			Logger.Sugar().Info("email password: ", cmd_passwd)
+		}
+
+		if cmd_name == "" || cmd_passwd == "" {
+			Logger.Sugar().Info("email address or password nil use config file")
+			c := config.GetConfig()
+			Usage(c.Mail.Name, c.Mail.Password)
+		} else {
+			Usage(cmd_name, cmd_passwd)
+		}
+
 	},
 }
 
@@ -41,6 +66,7 @@ func NewImapClient(username, password string) (*client.Client, error) {
 	imap.CharsetReader = charset.Reader
 
 	Logger.Sugar().Info("Connecting to server...")
+	Logger.Sugar().Infof("Username: %s Password", username, password)
 
 	// 连接邮件服务器
 	c, err := client.DialTLS("imap.exmail.qq.com:993", nil)

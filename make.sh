@@ -1,0 +1,1 @@
+go build -o bin/keep-online src/main/main.go

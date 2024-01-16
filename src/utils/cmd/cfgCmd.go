@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 	"github.com/rbgayoivoye09/keep-online/src/utils/login"
@@ -14,7 +12,10 @@ var cfgCmd = &cobra.Command{
 	Use:   "cfg",
 	Short: "Configure keep-online settings",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Configuring keep-online...")
+
+		if checkInternetAccess() {
+			return
+		}
 
 		c := config.GetConfig()
 

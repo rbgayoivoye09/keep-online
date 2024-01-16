@@ -12,6 +12,11 @@ var cmdCmd = &cobra.Command{
 	Use:   "cmd",
 	Short: "Execute a custom command",
 	Run: func(cmd *cobra.Command, args []string) {
+
+		if checkInternetAccess() {
+			return
+		}
+
 		userName, _ := cmd.Flags().GetString("user_name")
 		userPassword, _ := cmd.Flags().GetString("user_password")
 		userRedirURL, _ := cmd.Flags().GetString("user_redirurl")

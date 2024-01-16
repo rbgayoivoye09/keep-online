@@ -23,18 +23,24 @@ func checkInternetAccess() bool {
 	return true
 }
 
+// AuthenticateVPN authenticates the user for VPN access.
+//
+// Parameters:
+// - loginUrl: the URL of the login page.
+// - authUser: the username for authentication.
+// - authPass: the password for authentication.
+// - redirectUrl: the URL to redirect to after successful authentication.
+//
+// Returns:
+// - error: an error if authentication fails.
 func AuthenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
-	if !checkInternetAccess() {
-		Logger.Sugar().Warn("无网络访问，执行 VPN 认证")
-		return _authenticateVPN(loginUrl, authUser, authPass, redirectUrl)
-	}
-	Logger.Sugar().Info("接入网络，跳过 VPN 认证")
-	return nil
+	return _authenticateVPN(loginUrl, authUser, authPass, redirectUrl)
 }
 
+// _authenticateVPN is an internal function that actually authenticates the user for VPN access.
 func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
+	Logger.Sugar().Infof("开始认证VPN... %s %s %s %s", loginUrl, authUser, authPass, redirectUrl)
 	// 发送GET请求获取网页
-
 	response, err := http.Get(loginUrl)
 	if err != nil {
 		return fmt.Errorf("获取网页失败: %v", err)
@@ -59,6 +65,7 @@ func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 	// 检查认证是否成功
 	if response.StatusCode == http.StatusOK {
 		Logger.Sugar().Info("认证成功！")
+		checkInternetAccess()
 	} else {
 		return fmt.Errorf("认证失败，状态码: %d", response.StatusCode)
 	}

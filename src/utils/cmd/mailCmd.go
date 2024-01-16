@@ -28,6 +28,10 @@ var mailCmd = &cobra.Command{
 	Short: "Configure keep-online settings",
 	Run: func(cmd *cobra.Command, args []string) {
 
+		if !checkInternetAccess() {
+			return
+		}
+
 		cmd_name, err := cmd.Flags().GetString("name")
 		if err != nil {
 			Logger.Sugar().Error(err)

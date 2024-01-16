@@ -15,10 +15,17 @@ var sshCmd = &cobra.Command{
 	Use:   "ssh",
 	Short: "SSH into a remote server",
 	Run: func(cmd *cobra.Command, args []string) {
+
+		if checkInternetAccess() {
+			return
+		}
+
 		c := config.GetConfig()
+
 		t := time.Now()
 		s, err := ssh.RemoteFileContent(c.SSH.User, c.SSH.Password, c.SSH.Host, c.SSH.FilePath, c.SSH.Port)
-		d := time.Now().Sub(t)
+		d := time.Since(t)
+
 		Logger.Sugar().Infof("SSH took %s", d)
 		if err != nil {
 			Logger.Sugar().Error(err)

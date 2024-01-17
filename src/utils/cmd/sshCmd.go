@@ -3,6 +3,7 @@ package cmd
 import (
 	"time"
 
+	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
@@ -16,7 +17,7 @@ var sshCmd = &cobra.Command{
 	Short: "SSH into a remote server",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if checkInternetAccess() {
+		if internet.CheckInternetAccess() {
 			return
 		}
 

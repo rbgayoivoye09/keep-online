@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
+	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 	"github.com/rbgayoivoye09/keep-online/src/utils/login"
 
@@ -13,7 +14,7 @@ var cfgCmd = &cobra.Command{
 	Short: "Configure keep-online settings",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if checkInternetAccess() {
+		if internet.CheckInternetAccess() {
 			return
 		}
 

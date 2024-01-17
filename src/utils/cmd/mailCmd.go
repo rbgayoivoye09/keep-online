@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
+	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	"github.com/spf13/cobra"
@@ -28,7 +29,7 @@ var mailCmd = &cobra.Command{
 	Short: "Configure keep-online settings",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if !checkInternetAccess() {
+		if !internet.CheckInternetAccess() {
 			return
 		}
 

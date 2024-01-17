@@ -2,26 +2,12 @@ package login
 
 import (
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
-	"time"
 
+	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 )
-
-// checkInternetAccess 检测当前环境是否可以接入互联网
-func checkInternetAccess() bool {
-	urt := "www.baidu.com:80"
-	// urt := "www.google.com:80"
-	_, err := net.DialTimeout("tcp", urt, 5*time.Second)
-	if err != nil {
-		Logger.Sugar().Error("No internet access ", urt, err.Error())
-		return false
-	}
-	Logger.Sugar().Info("Internet access available ", urt)
-	return true
-}
 
 // AuthenticateVPN authenticates the user for VPN access.
 //
@@ -65,7 +51,7 @@ func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 	// 检查认证是否成功
 	if response.StatusCode == http.StatusOK {
 		Logger.Sugar().Info("认证成功！")
-		checkInternetAccess()
+		internet.CheckInternetAccess()
 	} else {
 		return fmt.Errorf("认证失败，状态码: %d", response.StatusCode)
 	}

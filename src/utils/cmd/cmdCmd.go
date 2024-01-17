@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
+	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 	"github.com/rbgayoivoye09/keep-online/src/utils/login"
 
@@ -13,7 +14,7 @@ var cmdCmd = &cobra.Command{
 	Short: "Execute a custom command",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if checkInternetAccess() {
+		if internet.CheckInternetAccess() {
 			return
 		}
 
@@ -35,6 +36,15 @@ var cmdCmd = &cobra.Command{
 	},
 }
 
+// init initializes the necessary flags for the cmdCmd function.
+//
+// It adds the required parameters:
+// - user_name: User name (required)
+// - user_password: User password (required)
+//
+// It also adds the optional parameters:
+// - user_redirurl: User redirurl (optional)
+// - user_login_url: User login URL (optional)
 func init() {
 	// 添加必选参数
 	cmdCmd.Flags().StringP("user_name", "u", "", "User name (required)")

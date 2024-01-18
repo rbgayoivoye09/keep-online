@@ -1,6 +1,8 @@
 package internet
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
@@ -26,9 +28,18 @@ func CheckInternetAccess() bool {
 	}
 	defer resp.Body.Close()
 
+	// 读取响应的内容
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return false
+	} else {
+		Logger.Sugar().Info("Response body:", string(body))
+	}
+
 	// 检查响应状态码
-	if resp.StatusCode == http.StatusOK {
-		Logger.Sugar().Info("Connected to the internet!")
+	if resp != nil && resp.StatusCode == http.StatusOK {
+		Logger.Sugar().Info("Connected to the internet! resp.StatusCode ", resp.StatusCode)
 		return true
 	} else {
 		Logger.Sugar().Info("Failed to connect to the internet. Status code:", resp.StatusCode)

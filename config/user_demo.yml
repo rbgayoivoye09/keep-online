@@ -11,8 +11,9 @@ ssh:
   password : "kP3uL9eI2nK3qI1f"
   host: "10.1.69.93"
   port : 22
-  filePath : "/home/eb5gc/zs/password.txt"
+  filePath : "/home/zzz/zs/password.txt"
 
 mail:
   name: "zhangsan@baidu.com"
   password : "zhangsan"
+  server: "imap.exmail.qq.com:993"  

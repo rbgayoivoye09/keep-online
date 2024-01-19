@@ -18,6 +18,7 @@ type User struct {
 type Mail struct {
 	Name     string `mapstructure:"name"`
 	Password string `mapstructure:"password"`
+	Server   string `mapstructure:"server"`
 }
 
 type Web struct {

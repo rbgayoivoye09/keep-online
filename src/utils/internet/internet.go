@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
 )
 
 func CheckInternetAccess() bool {
 	// 创建一个HTTP客户端
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 3 * time.Second,
+	}
 
 	// 构建GET请求
-	url := "http://www.baidu.com"
+	url := "https://www.baidu.com"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		Logger.Sugar().Info("Error creating request:", err)

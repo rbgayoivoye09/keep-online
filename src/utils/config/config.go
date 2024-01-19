@@ -60,7 +60,6 @@ func NewConfig(configFilePath string) (*Config, error) {
 }
 
 var config *Config
-var err error
 
 func GetConfig() *Config {
 	return config

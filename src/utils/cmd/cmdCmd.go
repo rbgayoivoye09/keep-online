@@ -48,10 +48,15 @@ var cmdCmd = &cobra.Command{
 func init() {
 	// 添加必选参数
 	cmdCmd.Flags().StringP("user_name", "u", "", "User name (required)")
-	cmdCmd.MarkFlagRequired("user_name")
+	err := cmdCmd.MarkFlagRequired("user_name")
+	if err != nil {
+		Logger.Sugar().Error(err.Error())
+	}
 	cmdCmd.Flags().StringP("user_password", "p", "", "User password (required)")
-	cmdCmd.MarkFlagRequired("user_password")
-
+	err = cmdCmd.MarkFlagRequired("user_password")
+	if err != nil {
+		Logger.Sugar().Error(err.Error())
+	}
 	// 添加可选参数
 	cmdCmd.Flags().String("user_redirurl", "", "User redirurl (optional)")
 	cmdCmd.Flags().String("user_login_url", "", "User login URL (optional)")

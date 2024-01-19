@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -103,7 +102,7 @@ func Usage(name, password string) {
 		Logger.Sugar().Fatal(err)
 	}
 	// Don't forget to logout
-	defer c.Logout()
+	// defer c.Logout()
 
 	// 选择收件箱
 	_, err = c.Select("INBOX", false)
@@ -191,7 +190,7 @@ func Usage(name, password string) {
 				case *mail.InlineHeader:
 					// This is the message's text (can be plain-text or HTML)
 					// 获取正文内容, text或者html
-					b, _ := ioutil.ReadAll(p.Body)
+					b, _ := io.ReadAll(p.Body)
 					Logger.Sugar().Info("Got text: ", string(b))
 
 					// 定义正则表达式模式
@@ -209,7 +208,7 @@ func Usage(name, password string) {
 						Logger.Sugar().Info("Password:", password)
 
 						// 将密码写入文件
-						err := ioutil.WriteFile("password.txt", []byte(password), 0644)
+						err := os.WriteFile("password.txt", []byte(password), 0644)
 						if err != nil {
 							Logger.Sugar().Error("Error writing to file:", err)
 						} else {
@@ -227,7 +226,7 @@ func Usage(name, password string) {
 					}
 					if filename != "" {
 						Logger.Sugar().Info("Got attachment: ", filename)
-						b, _ := ioutil.ReadAll(p.Body)
+						b, _ := io.ReadAll(p.Body)
 						file, _ := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, os.ModePerm)
 						defer file.Close()
 						n, err := file.Write(b)
@@ -242,6 +241,13 @@ func Usage(name, password string) {
 				return
 			}
 		}
+	}
+
+	err = c.Logout()
+	if err != nil {
+		Logger.Sugar().Error(err)
+	} else {
+		Logger.Sugar().Info("Logout success")
 	}
 }
 

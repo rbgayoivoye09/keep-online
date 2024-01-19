@@ -45,5 +45,10 @@ func init() {
 	if err != nil {
 		panic("Failed to initialize zap logger: " + err.Error())
 	}
-	defer Logger.Sync()
+	err = Logger.Sync()
+	if err != nil {
+		// Handle the error, e.g., log it or take appropriate action
+		Logger.Sugar().Error(err)
+	}
+	// defer Logger.Sync()
 }

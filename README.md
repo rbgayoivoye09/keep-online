@@ -1,5 +1,5 @@
 # keep-online
-
+[![Super-Linter](https://github.com/rbgayoivoye09/keep-online/actions/workflows/super-linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 自用-周期登入网络认证
 
 ## 项目结构

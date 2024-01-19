@@ -11,6 +11,7 @@ import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"go.uber.org/zap"
 
 	"github.com/spf13/cobra"
 
@@ -55,8 +56,8 @@ var mailCmd = &cobra.Command{
 		}
 
 		if cmd_name == "" || cmd_passwd == "" || cmd_server == "" {
-			Logger.Sugar().Info("email address or password nil use config file")
-			c := config.GetConfig()
+			Logger.Sugar().Info("email address or password nil use config file, ", inputConfigFilePath)
+			c := config.GetConfig(inputConfigFilePath)
 			Usage(c.Mail)
 		} else {
 			Usage(config.Mail{
@@ -116,6 +117,14 @@ func Usage(cmail config.Mail) {
 	}
 	// Don't forget to logout
 	// defer c.Logout()
+	defer func(log *zap.Logger, c *client.Client) {
+		err = c.Logout()
+		if err != nil {
+			log.Sugar().Error(err)
+		} else {
+			log.Sugar().Info("Logout success")
+		}
+	}(Logger, c)
 
 	// 选择收件箱
 	_, err = c.Select("INBOX", false)
@@ -251,23 +260,11 @@ func Usage(cmail config.Mail) {
 					}
 				}
 				Logger.Sugar().Infof("已找到满足需求的邮件")
-				err = c.Logout()
-				if err != nil {
-					Logger.Sugar().Error(err)
-				} else {
-					Logger.Sugar().Info("Logout success")
-				}
 				return
 			}
 		}
 	}
 
-	err = c.Logout()
-	if err != nil {
-		Logger.Sugar().Error(err)
-	} else {
-		Logger.Sugar().Info("Logout success")
-	}
 }
 
 func pop(list *[]uint32) uint32 {

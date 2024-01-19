@@ -18,7 +18,7 @@ var cfgCmd = &cobra.Command{
 			return
 		}
 
-		c := config.GetConfig()
+		c := config.GetConfig(inputConfigFilePath)
 
 		err := login.AuthenticateVPN(c.Web.LoginURL, c.User.Name, c.User.Password, c.Web.RedirURL)
 		if err != nil {

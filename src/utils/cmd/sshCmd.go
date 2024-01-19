@@ -21,7 +21,8 @@ var sshCmd = &cobra.Command{
 			return
 		}
 
-		c := config.GetConfig()
+		
+		c := config.GetConfig(inputConfigFilePath)
 
 		t := time.Now()
 		s, err := ssh.RemoteFileContent(c.SSH.User, c.SSH.Password, c.SSH.Host, c.SSH.FilePath, c.SSH.Port)

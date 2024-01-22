@@ -1,3 +1,5 @@
+// https://zhuanlan.zhihu.com/p/357556162
+
 package cmd
 
 import (
@@ -9,6 +11,7 @@ import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
 	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"go.uber.org/zap"
 
 	"github.com/spf13/cobra"
 
@@ -21,6 +24,7 @@ import (
 func init() {
 	mailCmd.Flags().StringP("name", "n", "", "email address")
 	mailCmd.Flags().StringP("password", "p", "", "email password")
+	mailCmd.Flags().StringP("server", "s", "", "email server")
 }
 
 var mailCmd = &cobra.Command{
@@ -34,36 +38,46 @@ var mailCmd = &cobra.Command{
 
 		cmd_name, err := cmd.Flags().GetString("name")
 		if err != nil {
-			Logger.Sugar().Error(err)
+			Logger.Sugar().Error(err.Error())
 		} else {
 			Logger.Sugar().Info("email address: ", cmd_name)
 		}
 		cmd_passwd, err := cmd.Flags().GetString("password")
 		if err != nil {
-			Logger.Sugar().Error(err)
+			Logger.Sugar().Error(err.Error())
 		} else {
 			Logger.Sugar().Info("email password: ", cmd_passwd)
 		}
-
-		if cmd_name == "" || cmd_passwd == "" {
-			Logger.Sugar().Info("email address or password nil use config file")
-			c := config.GetConfig()
-			Usage(c.Mail.Name, c.Mail.Password)
+		cmd_server, err := cmd.Flags().GetString("server")
+		if err != nil {
+			Logger.Sugar().Error(err.Error())
 		} else {
-			Usage(cmd_name, cmd_passwd)
+			Logger.Sugar().Info("email server: ", cmd_server)
+		}
+
+		if cmd_name == "" || cmd_passwd == "" || cmd_server == "" {
+			Logger.Sugar().Info("email address or password nil use config file, ", inputConfigFilePath)
+			c := config.GetConfig(inputConfigFilePath)
+			Usage(c.Mail)
+		} else {
+			Usage(config.Mail{
+				Name:     cmd_name,
+				Password: cmd_passwd,
+				Server:   cmd_server,
+			})
 		}
 
 	},
 }
 
 // CustomerImapClient 调用NewImapClient
-func CustomerImapClient(name, password string) (*client.Client, error) {
+func CustomerImapClient(name, password, server string) (*client.Client, error) {
 	// 【修改】账号和密码
-	return NewImapClient(name, password)
+	return NewImapClient(name, password, server)
 }
 
 // NewImapClient 创建IMAP客户端
-func NewImapClient(username, password string) (*client.Client, error) {
+func NewImapClient(username, password, server string) (*client.Client, error) {
 	// 【字符集】  处理us-ascii和utf-8以外的字符集(例如gbk,gb2313等)时,
 	//  需要加上这行代码。
 	// 【参考】 https://github.com/emersion/go-imap/wiki/Charset-handling
@@ -73,7 +87,7 @@ func NewImapClient(username, password string) (*client.Client, error) {
 	Logger.Sugar().Infof("Username: %s Password", username, password)
 
 	// 连接邮件服务器
-	c, err := client.DialTLS("imap.exmail.qq.com:993", nil)
+	c, err := client.DialTLS(server, nil)
 	if err != nil {
 		Logger.Sugar().Fatal(err)
 	}
@@ -95,14 +109,22 @@ func NewImapClient(username, password string) (*client.Client, error) {
 // fetch方法执行耗时可能会很长, 因此可以分两次fetch处理，减少处理时长：
 // 1)第一次fetch先使用ENVELOP或者RFC822.HEADER获取邮件头信息找到满足业务需求邮件的id
 // 2)第二次fetch根据这个邮件id使用'RFC822'获取邮件MIME内容，下载附件
-func Usage(name, password string) {
+func Usage(cmail config.Mail) {
 	// 连接邮件服务器
-	c, err := CustomerImapClient(name, password)
+	c, err := CustomerImapClient(cmail.Name, cmail.Password, cmail.Server)
 	if err != nil {
 		Logger.Sugar().Fatal(err)
 	}
 	// Don't forget to logout
 	// defer c.Logout()
+	defer func(log *zap.Logger, c *client.Client) {
+		err = c.Logout()
+		if err != nil {
+			log.Sugar().Error(err)
+		} else {
+			log.Sugar().Info("Logout success")
+		}
+	}(Logger, c)
 
 	// 选择收件箱
 	_, err = c.Select("INBOX", false)
@@ -243,12 +265,6 @@ func Usage(name, password string) {
 		}
 	}
 
-	err = c.Logout()
-	if err != nil {
-		Logger.Sugar().Error(err)
-	} else {
-		Logger.Sugar().Info("Logout success")
-	}
 }
 
 func pop(list *[]uint32) uint32 {

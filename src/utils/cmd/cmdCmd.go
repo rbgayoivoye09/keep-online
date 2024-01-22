@@ -73,7 +73,7 @@ func runCLI(c config.Config) {
 		Logger.Sugar().Warn("使用配置文件")
 
 		// 调用函数读取配置文件
-		rconfig := config.GetConfig()
+		rconfig := config.GetConfig(inputConfigFilePath)
 		myconfig.Web.LoginURL = rconfig.Web.LoginURL
 		myconfig.Web.RedirURL = rconfig.Web.RedirURL
 

@@ -126,6 +126,21 @@ func Usage(cmail config.Mail) {
 		}
 	}(Logger, c)
 
+	// 查看有什么邮箱
+	mailboxes := make(chan *imap.MailboxInfo, 10)
+	done := make(chan error, 1)
+	go func() {
+		done <- c.List("", "*", mailboxes)
+	}()
+
+	for m := range mailboxes {
+		Logger.Sugar().Info(m.Name)
+	}
+
+	if err := <-done; err != nil {
+		Logger.Sugar().Fatal(err)
+	}
+
 	// 选择收件箱
 	_, err = c.Select("INBOX", false)
 	if err != nil {

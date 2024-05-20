@@ -20,7 +20,6 @@ var TrootCmd = &cobra.Command{
 }
 
 func init() {
-	TrootCmd.AddCommand(cfgCmd, sshCmd, cmdCmd, mailCmd)
 	TrootCmd.PersistentFlags().StringVarP(&inputConfigFilePath, "config", "c", "", "custom config file path")
-
+	TrootCmd.AddCommand(cfgCmd, sshCmd, cmdCmd, mailCmd, backendCmd)
 }

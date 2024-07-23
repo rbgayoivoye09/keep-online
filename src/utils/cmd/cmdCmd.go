@@ -65,7 +65,6 @@ func init() {
 func runCLI(c config.Config) {
 	var myconfig config.Config
 	var err error
-	log.Logger.Sugar().Infof("c: %v\n", c)
 	myconfig = c
 
 	if c.Web.LoginURL == "" || c.Web.RedirURL == "" {

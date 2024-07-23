@@ -82,7 +82,6 @@ func NewImapClient(username, password, server string) (*client.Client, error) {
 	imap.CharsetReader = charset.Reader
 
 	log.Logger.Sugar().Info("Connecting to server...")
-	log.Logger.Sugar().Infof("Username: %s Password", username, password)
 
 	// 连接邮件服务器
 	c, err := client.DialTLS(server, nil)

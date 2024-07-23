@@ -27,11 +27,12 @@ type Web struct {
 }
 
 type SSH struct {
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	FilePath string `mapstructure:"filePath"`
+	User           string `mapstructure:"user"`
+	Password       string `mapstructure:"password"`
+	Host           string `mapstructure:"host"`
+	Port           int    `mapstructure:"port"`
+	FilePath       string `mapstructure:"filePath"`
+	KnownhostsPath string `mapstructure:"knownhostsPath"`
 }
 
 type Config struct {

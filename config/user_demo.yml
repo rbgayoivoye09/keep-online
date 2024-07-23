@@ -12,6 +12,7 @@ ssh:
   host: "10.1.69.93"
   port : 22
   filePath : "/home/zzz/zs/password.txt"
+  knownhostsPath : ""
 
 mail:
   name: "zhangsan@baidu.com"

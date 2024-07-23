@@ -24,7 +24,7 @@ var sshCmd = &cobra.Command{
 		c := config.GetConfig(inputConfigFilePath)
 
 		t := time.Now()
-		s, err := ssh.RemoteFileContent(c.SSH.User, c.SSH.Password, c.SSH.Host, c.SSH.FilePath, c.SSH.Port)
+		s, err := ssh.RemoteFileContent(c.SSH.User, c.SSH.Password, c.SSH.Host, c.SSH.FilePath, c.SSH.KnownhostsPath, c.SSH.Port)
 		d := time.Since(t)
 
 		log.Logger.Sugar().Infof("SSH took %s", d)

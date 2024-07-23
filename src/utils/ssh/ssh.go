@@ -7,10 +7,15 @@ import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	sys_ssh "golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // RemoteFileContent 获取远程文件的内容(VPN密码)
-func RemoteFileContent(username, password, host, filePath string, port int) (string, error) {
+func RemoteFileContent(username, password, host, filePath, knownhostsPath string, port int) (string, error) {
+	hostKeyCallback, err := knownhosts.New("/path/to/known_hosts")
+	if err != nil {
+		// Handle error
+	}
 	// log.Logger.Sugar().Infof("SSH into the remote server: %s@%s:%d %s", username, host, port, filePath)
 	// SSH配置
 	config := &sys_ssh.ClientConfig{
@@ -18,7 +23,7 @@ func RemoteFileContent(username, password, host, filePath string, port int) (str
 		Auth: []sys_ssh.AuthMethod{
 			sys_ssh.Password(password),
 		},
-		HostKeyCallback: sys_ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: hostKeyCallback,
 	}
 
 	t := time.Now()

@@ -12,7 +12,7 @@ import (
 
 // RemoteFileContent 获取远程文件的内容(VPN密码)
 func RemoteFileContent(username, password, host, filePath, knownhostsPath string, port int) (string, error) {
-	hostKeyCallback, err := knownhosts.New("/path/to/known_hosts")
+	hostKeyCallback, err := knownhosts.New(knownhostsPath)
 	if err != nil {
 		// Handle error
 	}

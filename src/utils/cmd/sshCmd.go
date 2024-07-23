@@ -32,7 +32,6 @@ var sshCmd = &cobra.Command{
 			log.Logger.Sugar().Error(err)
 		} else {
 			c.User.Password = s
-			log.Logger.Sugar().Info(c.User.Password)
 			err = login.AuthenticateVPN(c.Web.LoginURL, c.User.Name, c.User.Password, c.Web.RedirURL)
 			if err != nil {
 				log.Logger.Sugar().Error(err)

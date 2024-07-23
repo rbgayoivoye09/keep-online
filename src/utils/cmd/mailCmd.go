@@ -45,8 +45,6 @@ var mailCmd = &cobra.Command{
 		cmd_passwd, err := cmd.Flags().GetString("password")
 		if err != nil {
 			log.Logger.Sugar().Error(err.Error())
-		} else {
-			log.Logger.Sugar().Info("email password: ", cmd_passwd)
 		}
 		cmd_server, err := cmd.Flags().GetString("server")
 		if err != nil {

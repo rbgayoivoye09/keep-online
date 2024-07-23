@@ -240,8 +240,6 @@ func Usage(cmail config.Mail) {
 					// 如果找到匹配项，则输出密码后面的字符串并写入文件
 					if len(matches) > 1 {
 						password := matches[1]
-						log.Logger.Sugar().Info("Password:", password)
-
 						// 将密码写入文件
 						err := os.WriteFile("password.txt", []byte(password), 0644)
 						if err != nil {

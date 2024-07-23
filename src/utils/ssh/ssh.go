@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	sys_ssh "golang.org/x/crypto/ssh"
 )
 
 // RemoteFileContent 获取远程文件的内容(VPN密码)
 func RemoteFileContent(username, password, host, filePath string, port int) (string, error) {
-	// Logger.Sugar().Infof("SSH into the remote server: %s@%s:%d %s", username, host, port, filePath)
+	// log.Logger.Sugar().Infof("SSH into the remote server: %s@%s:%d %s", username, host, port, filePath)
 	// SSH配置
 	config := &sys_ssh.ClientConfig{
 		User: username,
@@ -29,7 +29,7 @@ func RemoteFileContent(username, password, host, filePath string, port int) (str
 	}
 	defer client.Close()
 
-	Logger.Sugar().Info("连接SSH服务器", time.Since(t))
+	log.Logger.Sugar().Info("连接SSH服务器", time.Since(t))
 
 	t2 := time.Now()
 	// 打开一个新的会话
@@ -38,7 +38,7 @@ func RemoteFileContent(username, password, host, filePath string, port int) (str
 		return "", fmt.Errorf("failed to create session: %v", err)
 	}
 	defer session.Close()
-	Logger.Sugar().Info("打开一个新的会话", time.Since(t2))
+	log.Logger.Sugar().Info("打开一个新的会话", time.Since(t2))
 
 	// 执行远程命令
 	t3 := time.Now()
@@ -47,7 +47,7 @@ func RemoteFileContent(username, password, host, filePath string, port int) (str
 	if err != nil {
 		return "", fmt.Errorf("failed to execute command: %v", err)
 	}
-	Logger.Sugar().Info("执行远程命令", time.Since(t3))
+	log.Logger.Sugar().Info("执行远程命令", time.Since(t3))
 
 	return string(output), nil
 }

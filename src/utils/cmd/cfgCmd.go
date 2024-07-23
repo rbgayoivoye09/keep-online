@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 	"github.com/rbgayoivoye09/keep-online/src/utils/login"
 
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ var cfgCmd = &cobra.Command{
 
 		err := login.AuthenticateVPN(c.Web.LoginURL, c.User.Name, c.User.Password, c.Web.RedirURL)
 		if err != nil {
-			Logger.Sugar().Error(err)
+			log.Logger.Sugar().Error(err)
 		}
 	},
 }

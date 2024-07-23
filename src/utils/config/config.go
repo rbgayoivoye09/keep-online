@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	"github.com/spf13/viper"
 )
@@ -69,14 +69,14 @@ func newConfig(configFilePath string) (*Config, error) {
 // It returns a pointer to a Config struct.
 func GetConfig(cfgPath string) *Config {
 
-	Logger.Sugar().Info("GetConfig: ", cfgPath)
+	log.Logger.Sugar().Info("GetConfig: ", cfgPath)
 
 	configFilePath := ""
 
 	if cfgPath != "" {
 		configFilePath = cfgPath
 	} else {
-		Logger.Sugar().Error("cfgPath is empty")
+		log.Logger.Sugar().Error("cfgPath is empty")
 		configFilePath = getDefaultConfigFilePath()
 	}
 
@@ -84,7 +84,7 @@ func GetConfig(cfgPath string) *Config {
 	config, err := newConfig(configFilePath)
 	if err != nil {
 		// Log and exit if there is an error reading the config file.
-		Logger.Sugar().Fatalf("Error reading config file: %v", err)
+		log.Logger.Sugar().Fatalf("Error reading config file: %v", err)
 	}
 
 	return config
@@ -95,7 +95,7 @@ func getDefaultConfigFilePath() string {
 	projectRoot, err := filepath.Abs(".")
 	if err != nil {
 		// Log and exit if there is an error getting the project root path.
-		Logger.Sugar().Fatalf("Error getting project root path: %v", err)
+		log.Logger.Sugar().Fatalf("Error getting project root path: %v", err)
 	}
 	// Construct the path to the config file.
 	configFilePath := filepath.Join(projectRoot, "config", "user.yml")

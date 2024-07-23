@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	"github.com/rbgayoivoye09/keep-online/src/utils/login"
@@ -21,22 +21,21 @@ var sshCmd = &cobra.Command{
 			return
 		}
 
-		
 		c := config.GetConfig(inputConfigFilePath)
 
 		t := time.Now()
 		s, err := ssh.RemoteFileContent(c.SSH.User, c.SSH.Password, c.SSH.Host, c.SSH.FilePath, c.SSH.Port)
 		d := time.Since(t)
 
-		Logger.Sugar().Infof("SSH took %s", d)
+		log.Logger.Sugar().Infof("SSH took %s", d)
 		if err != nil {
-			Logger.Sugar().Error(err)
+			log.Logger.Sugar().Error(err)
 		} else {
 			c.User.Password = s
-			Logger.Sugar().Info(c.User.Password)
+			log.Logger.Sugar().Info(c.User.Password)
 			err = login.AuthenticateVPN(c.Web.LoginURL, c.User.Name, c.User.Password, c.Web.RedirURL)
 			if err != nil {
-				Logger.Sugar().Error(err)
+				log.Logger.Sugar().Error(err)
 			}
 		}
 

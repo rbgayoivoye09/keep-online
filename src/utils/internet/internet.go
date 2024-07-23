@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 )
 
 func CheckInternetAccess() bool {
@@ -19,14 +19,14 @@ func CheckInternetAccess() bool {
 	url := "https://www.baidu.com"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		Logger.Sugar().Info("Error creating request:", err)
+		log.Logger.Sugar().Info("Error creating request:", err)
 		return false
 	}
 
 	// 发送请求并获取响应
 	resp, err := client.Do(req)
 	if err != nil {
-		Logger.Sugar().Info("Error sending request:", err)
+		log.Logger.Sugar().Info("Error sending request:", err)
 		return false
 	}
 	defer resp.Body.Close()
@@ -37,15 +37,15 @@ func CheckInternetAccess() bool {
 		fmt.Println("Error reading response body:", err)
 		return false
 	} else {
-		Logger.Sugar().Info("Response body:", string(body))
+		log.Logger.Sugar().Info("Response body:", string(body))
 	}
 
 	// 检查响应状态码
 	if resp != nil && resp.StatusCode == http.StatusOK {
-		Logger.Sugar().Info("Connected to the internet! resp.StatusCode ", resp.StatusCode)
+		log.Logger.Sugar().Info("Connected to the internet! resp.StatusCode ", resp.StatusCode)
 		return true
 	} else {
-		Logger.Sugar().Info("Failed to connect to the internet. Status code:", resp.StatusCode)
+		log.Logger.Sugar().Info("Failed to connect to the internet. Status code:", resp.StatusCode)
 		return false
 	}
 }

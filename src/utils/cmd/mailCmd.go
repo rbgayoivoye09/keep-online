@@ -10,7 +10,7 @@ import (
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/config"
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 	"go.uber.org/zap"
 
 	"github.com/spf13/cobra"
@@ -38,25 +38,23 @@ var mailCmd = &cobra.Command{
 
 		cmd_name, err := cmd.Flags().GetString("name")
 		if err != nil {
-			Logger.Sugar().Error(err.Error())
+			log.Logger.Sugar().Error(err.Error())
 		} else {
-			Logger.Sugar().Info("email address: ", cmd_name)
+			log.Logger.Sugar().Info("email address: ", cmd_name)
 		}
 		cmd_passwd, err := cmd.Flags().GetString("password")
 		if err != nil {
-			Logger.Sugar().Error(err.Error())
-		} else {
-			Logger.Sugar().Info("email password: ", cmd_passwd)
+			log.Logger.Sugar().Error(err.Error())
 		}
 		cmd_server, err := cmd.Flags().GetString("server")
 		if err != nil {
-			Logger.Sugar().Error(err.Error())
+			log.Logger.Sugar().Error(err.Error())
 		} else {
-			Logger.Sugar().Info("email server: ", cmd_server)
+			log.Logger.Sugar().Info("email server: ", cmd_server)
 		}
 
 		if cmd_name == "" || cmd_passwd == "" || cmd_server == "" {
-			Logger.Sugar().Info("email address or password nil use config file, ", inputConfigFilePath)
+			log.Logger.Sugar().Info("email address or password nil use config file, ", inputConfigFilePath)
 			c := config.GetConfig(inputConfigFilePath)
 			Usage(c.Mail)
 		} else {
@@ -83,22 +81,21 @@ func NewImapClient(username, password, server string) (*client.Client, error) {
 	// 【参考】 https://github.com/emersion/go-imap/wiki/Charset-handling
 	imap.CharsetReader = charset.Reader
 
-	Logger.Sugar().Info("Connecting to server...")
-	Logger.Sugar().Infof("Username: %s Password", username, password)
+	log.Logger.Sugar().Info("Connecting to server...")
 
 	// 连接邮件服务器
 	c, err := client.DialTLS(server, nil)
 	if err != nil {
-		Logger.Sugar().Fatal(err)
+		log.Logger.Sugar().Fatal(err)
 	}
-	Logger.Sugar().Info("Connected")
+	log.Logger.Sugar().Info("Connected")
 
 	// 使用账号密码登录
 	if err := c.Login(username, password); err != nil {
 		return nil, err
 	}
 
-	Logger.Sugar().Info("Logged in")
+	log.Logger.Sugar().Info("Logged in")
 
 	return c, nil
 }
@@ -113,7 +110,7 @@ func Usage(cmail config.Mail) {
 	// 连接邮件服务器
 	c, err := CustomerImapClient(cmail.Name, cmail.Password, cmail.Server)
 	if err != nil {
-		Logger.Sugar().Fatal(err)
+		log.Logger.Sugar().Fatal(err)
 	}
 	// Don't forget to logout
 	// defer c.Logout()
@@ -124,12 +121,27 @@ func Usage(cmail config.Mail) {
 		} else {
 			log.Sugar().Info("Logout success")
 		}
-	}(Logger, c)
+	}(log.Logger, c)
+
+	// 查看有什么邮箱
+	mailboxes := make(chan *imap.MailboxInfo, 10)
+	done := make(chan error, 1)
+	go func() {
+		done <- c.List("", "*", mailboxes)
+	}()
+
+	for m := range mailboxes {
+		log.Logger.Sugar().Info(m.Name)
+	}
+
+	if err := <-done; err != nil {
+		log.Logger.Sugar().Fatal(err)
+	}
 
 	// 选择收件箱
 	_, err = c.Select("INBOX", false)
 	if err != nil {
-		Logger.Sugar().Fatal(err)
+		log.Logger.Sugar().Fatal(err)
 	}
 
 	// 搜索条件实例对象
@@ -158,16 +170,16 @@ func Usage(cmail config.Mail) {
 				// 【实践经验】这里遇到过的err信息是：ENVELOPE doesn't contain 10 fields
 				// 原因是对方发送的邮件格式不规范，解析失败
 				// 相关的issue: https://github.com/emersion/go-imap/issues/143
-				Logger.Sugar().Info(seqset, err)
+				log.Logger.Sugar().Info(seqset, err)
 			}
 		}()
 
 		message := <-chanMessage
 		if message == nil {
-			Logger.Sugar().Info("Server didn't returned message")
+			log.Logger.Sugar().Info("Server didn't returned message")
 			continue
 		}
-		Logger.Sugar().Infof("%v: %v bytes, flags=%v \n", message.SeqNum, message.Size, message.Flags)
+		log.Logger.Sugar().Infof("%v: %v bytes, flags=%v \n", message.SeqNum, message.Size, message.Flags)
 
 		if strings.HasPrefix(message.Envelope.Subject, "EB VPN Password") {
 			chanMsg := make(chan *imap.Message, 1)
@@ -176,26 +188,26 @@ func Usage(cmail config.Mail) {
 				if err = c.Fetch(seqset,
 					[]imap.FetchItem{imap.FetchRFC822},
 					chanMsg); err != nil {
-					Logger.Sugar().Info(seqset, err)
+					log.Logger.Sugar().Info(seqset, err)
 				}
 			}()
 
 			msg := <-chanMsg
 			if msg == nil {
-				Logger.Sugar().Info("Server didn't returned message")
+				log.Logger.Sugar().Info("Server didn't returned message")
 			}
 
 			section := &s
 			r := msg.GetBody(section)
 			if r == nil {
-				Logger.Sugar().Fatal("Server didn't returned message body")
+				log.Logger.Sugar().Fatal("Server didn't returned message body")
 			}
 
 			// Create a new mail reader
 			// 创建邮件阅读器
 			mr, err := mail.CreateReader(r)
 			if err != nil {
-				Logger.Sugar().Fatal(err)
+				log.Logger.Sugar().Fatal(err)
 			}
 
 			// Process each message's part
@@ -205,7 +217,7 @@ func Usage(cmail config.Mail) {
 				if err == io.EOF {
 					break
 				} else if err != nil {
-					Logger.Sugar().Fatal(err)
+					log.Logger.Sugar().Fatal(err)
 				}
 
 				switch h := p.Header.(type) {
@@ -213,7 +225,7 @@ func Usage(cmail config.Mail) {
 					// This is the message's text (can be plain-text or HTML)
 					// 获取正文内容, text或者html
 					b, _ := io.ReadAll(p.Body)
-					Logger.Sugar().Info("Got text: ", string(b))
+					log.Logger.Sugar().Info("Got text: ", string(b))
 
 					// 定义正则表达式模式
 					pattern := `Your password: (\w+)`
@@ -227,39 +239,37 @@ func Usage(cmail config.Mail) {
 					// 如果找到匹配项，则输出密码后面的字符串并写入文件
 					if len(matches) > 1 {
 						password := matches[1]
-						Logger.Sugar().Info("Password:", password)
-
 						// 将密码写入文件
 						err := os.WriteFile("password.txt", []byte(password), 0644)
 						if err != nil {
-							Logger.Sugar().Error("Error writing to file:", err)
+							log.Logger.Sugar().Error("Error writing to file:", err)
 						} else {
-							Logger.Sugar().Info("Password written to file: password.txt")
+							log.Logger.Sugar().Info("Password written to file: password.txt")
 						}
 					} else {
-						Logger.Sugar().Error("Password not found.")
+						log.Logger.Sugar().Error("Password not found.")
 					}
 				case *mail.AttachmentHeader:
 					// This is an attachment
 					// 下载附件
 					filename, err := h.Filename()
 					if err != nil {
-						Logger.Sugar().Fatal(err)
+						log.Logger.Sugar().Fatal(err)
 					}
 					if filename != "" {
-						Logger.Sugar().Info("Got attachment: ", filename)
+						log.Logger.Sugar().Info("Got attachment: ", filename)
 						b, _ := io.ReadAll(p.Body)
 						file, _ := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, os.ModePerm)
 						defer file.Close()
 						n, err := file.Write(b)
 						if err != nil {
-							Logger.Sugar().Info("写入文件异常", err.Error())
+							log.Logger.Sugar().Info("写入文件异常", err.Error())
 						} else {
-							Logger.Sugar().Infof("写入Ok：", n)
+							log.Logger.Sugar().Infof("写入Ok：", n)
 						}
 					}
 				}
-				Logger.Sugar().Infof("已找到满足需求的邮件")
+				log.Logger.Sugar().Infof("已找到满足需求的邮件")
 				return
 			}
 		}

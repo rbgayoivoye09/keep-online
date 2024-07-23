@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/rbgayoivoye09/keep-online/src/utils/internet"
-	. "github.com/rbgayoivoye09/keep-online/src/utils/log"
+	"github.com/rbgayoivoye09/keep-online/src/utils/log"
 )
 
 // AuthenticateVPN authenticates the user for VPN access.
@@ -25,7 +25,7 @@ func AuthenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 
 // _authenticateVPN is an internal function that actually authenticates the user for VPN access.
 func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
-	Logger.Sugar().Infof("开始认证VPN... %s %s %s", loginUrl, authUser, redirectUrl)
+	log.Logger.Sugar().Infof("开始认证VPN... %s %s %s", loginUrl, authUser, redirectUrl)
 	// 发送GET请求获取网页
 	response, err := http.Get(loginUrl)
 	if err != nil {
@@ -50,7 +50,7 @@ func _authenticateVPN(loginUrl, authUser, authPass, redirectUrl string) error {
 
 	// 检查认证是否成功
 	if response.StatusCode == http.StatusOK {
-		Logger.Sugar().Info("认证成功！")
+		log.Logger.Sugar().Info("认证成功！")
 		internet.CheckInternetAccess()
 	} else {
 		return fmt.Errorf("认证失败，状态码: %d", response.StatusCode)

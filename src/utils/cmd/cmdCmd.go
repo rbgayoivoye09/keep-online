@@ -86,7 +86,6 @@ func runCLI(c config.Config) {
 
 	// 打印配置项
 	log.Logger.Sugar().Info("User Name:", myconfig.User.Name)
-	log.Logger.Sugar().Info("User Password:", myconfig.User.Password)
 	log.Logger.Sugar().Info("User LoginUrl:", myconfig.Web.LoginURL)
 	log.Logger.Sugar().Info("User Redirul:", myconfig.Web.RedirURL)
 

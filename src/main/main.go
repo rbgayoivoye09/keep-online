@@ -34,15 +34,17 @@ func main() {
 		Compress:   true,
 	}
 
+	pec := zap.NewProductionEncoderConfig()
+	pec.EncodeTime = zapcore.ISO8601TimeEncoder
 	// Create a zap core
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), // Use JSON format for structured logging
+		zapcore.NewJSONEncoder(pec), // Use JSON format for structured logging
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(lumberjackLogger)),
 		zap.InfoLevel, // Log level
 	)
 
 	// Create a logger with the core
-	log.Logger = zap.New(core)
+	log.Logger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
 
 	// Use the logger
 	defer func() {

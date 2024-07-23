@@ -45,7 +45,11 @@ func main() {
 	log.Logger = zap.New(core)
 
 	// Use the logger
-	defer log.Logger.Sync() // Flushes buffer, if any
+	defer func() {
+		if err := log.Logger.Sync(); err != nil {
+			log.Logger.Sugar().Info("Failed to sync logger:", err)
+		}
+	}()
 
 	if err := cmd.TrootCmd.Execute(); err != nil {
 		log.Logger.Sugar().Error(err)

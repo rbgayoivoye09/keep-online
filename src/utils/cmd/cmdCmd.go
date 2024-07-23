@@ -23,7 +23,6 @@ var cmdCmd = &cobra.Command{
 		userRedirURL, _ := cmd.Flags().GetString("user_redirurl")
 		userLoginURL, _ := cmd.Flags().GetString("user_login_url")
 
-		log.Logger.Sugar().Infof("User Password: %s\n", userPassword)
 		log.Logger.Sugar().Infof("User Name: %s\n", userName)
 		log.Logger.Sugar().Infof("User RedirURL: %s\n", userRedirURL)
 		log.Logger.Sugar().Infof("User LoginURL: %s\n", userLoginURL)

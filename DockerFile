@@ -1,5 +1,5 @@
 # 使用官方 Go 镜像作为构建环境
-FROM golang:1.22 as builder
+FROM golang:1.22.5-alpine3.19 as builder
 
 # 设置工作目录
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN go mod tidy
 RUN sh make.sh
 
 # 使用一个更小的镜像来运行应用程序
-FROM alpine:3.15
+FROM alpine:3.19
 
 # 更换 APK 镜像源
 RUN sed -i 's|http://dl-cdn.alpinelinux.org|https://mirrors.aliyun.com/alpine|g' /etc/apk/repositories
@@ -29,6 +29,9 @@ WORKDIR /root/
 
 # 从构建环境中复制可执行文件到当前镜像
 COPY --from=builder /app/bin/keep-online .
+RUN chmod +x keep-online && mkdir logs && cd logs && touch app.log
 
 # 执行应用程序
-CMD ["./keep-online help"]
+
+CMD [ "tail","-f","logs/app.log" ]
+
